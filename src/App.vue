@@ -3,6 +3,6 @@
     <router-link to="/"><h1>Bookcase</h1></router-link>
     <div class="alert">Errors</div>
     <div class="alert bg-gray-200 text-gray-900">Loading...</div>
-    <router-view />
+    <router-view :key="$route.fullPath"></router-view>
   </div>
 </template>
