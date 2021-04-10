@@ -1,29 +1,25 @@
 <template>
   <div class="home">
     <div class="flex justify-between">
-      <h1>Science Book Shelf</h1>
-      <select v-model="currentTopic">
-        <option v-for="[val, desc] in bookTopics" :value="val" :key="val">{{ desc }}</option>
+      <select v-model="state.currentTopic">
+        <option v-for="[val, desc] in bookTopics" :value="val" :key="val">
+          {{ desc }}
+        </option>
       </select>
-    </div>
-    <div>
-      {{ currentTopic}} - {{ currentPage }}
-    </div>
-    <div class="flex justify-end">
-      <button
-        class="btn"
-        v-if="currentPage > 0"
-        @click="currentPage--"
-      >
-        Prev &nbsp;</button>
-      <button
-        class="btn"
-        @click="currentPage++"
-        >Next</button>
+      <div>
+        <button
+          class="btn"
+          v-if="state.currentPage > 0"
+          @click="state.currentPage--"
+        >
+          Prev &nbsp;
+        </button>
+        <button class="btn" @click="state.currentPage++">Next</button>
+      </div>
     </div>
     <div class="grid grid-cols-4">
       <div
-        v-for="book in books"
+        v-for="book in state.books"
         :key="book.key"
         class="border bg-white border-grey-500 m-1 p-1"
       >
@@ -36,54 +32,47 @@
 </template>
 
 <script lang="ts">
-import bookService from "@/bookService";
-import { Work } from "@/models/Subjects";
-import { defineComponent, onMounted, reactive, ref, watch } from "vue";
+import { defineComponent, onMounted, watch } from "vue";
 import BookInfo from "@/components/bookInfo.vue";
 import bookTopics from "@/common/bookTopics";
+import state from "@/state";
 
 export default defineComponent({
   components: {
-    BookInfo
+    BookInfo,
   },
   setup() {
-    const books: Work[] = reactive([]);
-    const currentPage = ref(0);
-    const currentTopic = ref(bookTopics[0][0]); // First value
     let topicChanging = false;
 
-    watch(currentPage,
+    watch(
+      () => state.currentPage,
       async () => {
         if (!topicChanging) {
-          await loadBooks(currentTopic.value);
+          await state.loadBooks();
         }
-      });
+      }
+    );
 
-    watch(currentTopic,
+    watch(
+      () => state.currentTopic,
       async () => {
         try {
           topicChanging = true;
-          currentPage.value = 0;
-          await loadBooks(currentTopic.value);
+          state.currentPage = 0;
+          await state.loadBooks();
         } finally {
           topicChanging = false;
         }
-      }); 
-
-    onMounted(async () => loadBooks(currentTopic.value));
-
-    async function loadBooks(val: string) {
-      var response = await bookService.getBooks(val, currentPage.value);
-      if (response.status === 200) {
-        books.splice(0, books.length, ...response.data.works);
       }
-    } 
+    );
+
+    onMounted(async () => {
+      if (state.books.length === 0) state.loadBooks();
+    });
 
     return {
-      currentPage,
-      currentTopic,
-      books,
-      bookTopics
+      state,
+      bookTopics,
     };
   },
 });
