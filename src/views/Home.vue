@@ -1,15 +1,10 @@
 <template>
   <div class="home">
     <div class="flex justify-between">
-      <h1>Science Book Shelf</h1>
       <select v-model="currentTopic">
         <option v-for="[val, desc] in bookTopics" :value="val" :key="val">{{ desc }}</option>
       </select>
-    </div>
-    <div>
-      {{ currentTopic}} - {{ currentPage }}
-    </div>
-    <div class="flex justify-end">
+      <div>
       <button
         class="btn"
         v-if="currentPage > 0"
@@ -20,6 +15,7 @@
         class="btn"
         @click="currentPage++"
         >Next</button>
+        </div>
     </div>
     <div class="grid grid-cols-4">
       <div
@@ -36,20 +32,19 @@
 </template>
 
 <script lang="ts">
-import bookService from "@/bookService";
-import { Work } from "@/models/Subjects";
-import { defineComponent, onMounted, reactive, ref, watch } from "vue";
+import { defineComponent, onMounted, watch } from "vue";
 import BookInfo from "@/components/bookInfo.vue";
 import bookTopics from "@/common/bookTopics";
+import BookFactory from "@/factories/BookFactory";
 
 export default defineComponent({
   components: {
     BookInfo
   },
   setup() {
-    const books: Work[] = reactive([]);
-    const currentPage = ref(0);
-    const currentTopic = ref(bookTopics[0][0]); // First value
+
+    const { books, currentPage, currentTopic, loadBooks } = BookFactory();
+
     let topicChanging = false;
 
     watch(currentPage,
@@ -70,14 +65,9 @@ export default defineComponent({
         }
       }); 
 
-    onMounted(async () => loadBooks(currentTopic.value));
-
-    async function loadBooks(val: string) {
-      var response = await bookService.getBooks(val, currentPage.value);
-      if (response.status === 200) {
-        books.splice(0, books.length, ...response.data.works);
-      }
-    } 
+    onMounted(async () => {
+      if (books.length === 0) loadBooks(currentTopic.value)
+    });
 
     return {
       currentPage,
