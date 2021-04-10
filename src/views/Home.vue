@@ -1,19 +1,25 @@
 <template>
   <div class="home">
-    <h1>Science Book Shelf</h1>
+    <div class="flex justify-between">
+      <h1>Science Book Shelf</h1>
+      <select v-model="currentTopic">
+        <option v-for="[val, desc] in bookTopics" :value="val" :key="val">{{ desc }}</option>
+      </select>
+    </div>
+    <div>
+      {{ currentTopic}} - {{ currentPage }}
+    </div>
     <div class="flex justify-end">
-      <router-link
+      <button
         class="btn"
         v-if="currentPage > 0"
-        :to="{ name: 'Home', params: { page: currentPage - 1 } }"
+        @click="currentPage--"
       >
-        Prev</router-link
-      >&nbsp;
-      <router-link
+        Prev &nbsp;</button>
+      <button
         class="btn"
-        :to="{ name: 'Home', params: { page: currentPage + 1  } }"
-        >Next</router-link
-      >
+        @click="currentPage++"
+        >Next</button>
     </div>
     <div class="grid grid-cols-4">
       <div
@@ -32,31 +38,52 @@
 <script lang="ts">
 import bookService from "@/bookService";
 import { Work } from "@/models/Subjects";
-import { defineComponent, onActivated, onMounted, reactive, ref } from "vue";
+import { defineComponent, onMounted, reactive, ref, watch } from "vue";
 import BookInfo from "@/components/bookInfo.vue";
-import router from "@/router";
-import { useRoute } from "vue-router";
+import bookTopics from "@/common/bookTopics";
 
 export default defineComponent({
   components: {
     BookInfo
   },
   setup() {
-    let books: Work[] = reactive([]);
-    const route = useRoute();
-    const currentPage = route.params.page ? parseInt(route.params.page.toString()) : 0;
+    const books: Work[] = reactive([]);
+    const currentPage = ref(0);
+    const currentTopic = ref(bookTopics[0][0]); // First value
+    let topicChanging = false;
 
-    onMounted(async () => {
-      var response = await bookService.getScienceBooks(currentPage);
+    watch(currentPage,
+      async () => {
+        if (!topicChanging) {
+          await loadBooks(currentTopic.value);
+        }
+      });
+
+    watch(currentTopic,
+      async () => {
+        try {
+          topicChanging = true;
+          currentPage.value = 0;
+          await loadBooks(currentTopic.value);
+        } finally {
+          topicChanging = false;
+        }
+      }); 
+
+    onMounted(async () => loadBooks(currentTopic.value));
+
+    async function loadBooks(val: string) {
+      var response = await bookService.getBooks(val, currentPage.value);
       if (response.status === 200) {
         books.splice(0, books.length, ...response.data.works);
       }
-    });
+    } 
 
     return {
       currentPage,
+      currentTopic,
       books,
-      router
+      bookTopics
     };
   },
 });
