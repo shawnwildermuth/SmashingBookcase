@@ -73,7 +73,7 @@ export default defineComponent({
     onMounted(async () => loadBooks(currentTopic.value));
 
     async function loadBooks(val: string) {
-      var response = await bookService.getBooks(val, currentPage.value);
+      const response = await bookService.getBooks(val, currentPage.value);
       if (response.status === 200) {
         books.splice(0, books.length, ...response.data.works);
       }

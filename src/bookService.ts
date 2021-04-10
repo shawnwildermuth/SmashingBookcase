@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
-import { Book } from "./models/Book";
 import { Subject } from "./models/Subjects";
+import { Book } from "./models/Book";
 
 const pageSize = 24;
 
