@@ -3,7 +3,7 @@
     <button class="btn" @click="router.back()">Back</button>
     <div v-if="book">
       <div class="flex">
-        <img :src="`http://covers.openlibrary.org/b/id/${book.covers[0]}-L.jpg`"
+        <img :src="`http://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`"
           class="w-72 shadow"
         />
         <div class="p-2">
@@ -19,8 +19,8 @@
 <script lang="ts">
 import { defineComponent, onMounted, Ref, ref } from "vue";
 import router from "@/router";
-import bookService from "@/bookService";
-import { Book } from "@/models/Book";
+import store from "@/store";
+import { Work } from "@/models/Subjects";
 
 export default defineComponent({
   props: {
@@ -30,13 +30,10 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const book: Ref<Book | null> = ref(null);
+    const book: Ref<Work | null> = ref(null);
 
     onMounted(async () => {
-      const response = await bookService.getBook(props.id);
-      if (response.status === 200) {
-        book.value =  response.data;
-      }
+      book.value = store.getters.findBook(props.id);
     });
 
     return {
