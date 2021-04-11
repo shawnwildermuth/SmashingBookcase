@@ -19,7 +19,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, Ref, ref } from "vue";
 import router from "@/router";
-import store from "@/store";
+import bookStore from "@/store";
 import { Work } from "@/models/Subjects";
 
 export default defineComponent({
@@ -30,10 +30,11 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const store = bookStore();
     const book: Ref<Work | null> = ref(null);
 
     onMounted(async () => {
-      book.value = store.getters.findBook(props.id);
+      book.value = store.findBook(props.id);
     });
 
     return {

@@ -2,21 +2,21 @@
   <div class="home">
     <div class="flex justify-between">
       <h1>Science Book Shelf</h1>
-      <select v-model="state.currentTopic">
+      <select v-model="store.currentTopic">
         <option v-for="[val, desc] in bookTopics" :value="val" :key="val">
           {{ desc }}
         </option>
       </select>
     </div>
     <div class="flex justify-end">
-      <button class="btn" v-if="currentPage > 0" @click="decrementPage">
+      <button class="btn" v-if="store.currentPage > 0" @click="store.decrementPage">
         Prev &nbsp;
       </button>
-      <button class="btn" @click="incrementPage">Next</button>
+      <button class="btn" @click="store.incrementPage">Next</button>
     </div>
     <div class="grid grid-cols-4">
       <div
-        v-for="book in books"
+        v-for="book in store.books"
         :key="book.key"
         class="border bg-white border-grey-500 m-1 p-1"
       >
@@ -32,47 +32,42 @@
 import { computed, defineComponent, onMounted, watch } from "vue";
 import BookInfo from "@/components/bookInfo.vue";
 import bookTopics from "@/common/bookTopics";
-import store from "@/store";
+import bookStore from "@/store";
 
 export default defineComponent({
   components: {
     BookInfo,
   },
   setup() {
-    const books = computed(() => store.state.books);
-    const currentPage = computed(() => store.state.currentPage);
-    const currentTopic = computed(() => store.state.currentTopic);
+    const store = bookStore(); // Generate the wrapper
     let topicChanging = false;
 
-    watch(currentPage, () => {
+    watch(store.currentPage, async () => {
       if (!topicChanging) {
-        store.dispatch("loadBooks");
+        await store.loadBooks();
       }
     });
 
-    watch(currentTopic, async () => {
+    watch(store.currentTopic, async () => {
       try {
         topicChanging = true;
-        store.commit("setCurrentPage", 0);
-        store.dispatch("loadBooks");
+        store.setCurrentPage = 0;
+        await store.loadBooks();
       } finally {
         topicChanging = false;
       }
     });
 
-    onMounted(async () => store.dispatch("loadBooks"));
+    onMounted(async () => await store.loadBooks());
 
     const incrementPage = () =>
-      store.commit("setPage", store.state.currentPage + 1);
+      store.currentPage++;
     const decrementPage = () =>
-      store.commit("setPage", store.state.currentPage - 1);
+      store.currentPage--;
 
     return {
-      currentPage,
-      currentTopic,
-      books,
       bookTopics,
-      state: store.state,
+      store,
       incrementPage,
       decrementPage,
     };
