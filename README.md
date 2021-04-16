@@ -1,24 +1,5 @@
-# bookcase
+# SmashingBookcase
 
-## Project setup
-```
-npm install
-```
+This is an example for the "Managing Shared State in Vue 3" article in Smashing Magazine. I will update this with a link once published.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+The project is a Vue 3 project utilizing a number of strategies for shared state. This branch is specifically for the Factory pattern. 
