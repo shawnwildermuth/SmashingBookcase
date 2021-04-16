@@ -2,7 +2,7 @@
   <div class="home">
     <div class="flex justify-between">
       <h1>Science Book Shelf</h1>
-      <select v-model="state.currentTopic">
+      <select v-model="currentTopic">
         <option v-for="[val, desc] in bookTopics" :value="val" :key="val">
           {{ desc }}
         </option>
@@ -60,7 +60,7 @@ export default defineComponent({
       }
     });
 
-    onMounted(async () => store.dispatch("loadBooks"));
+    onMounted(async () => await store.dispatch("loadBooks"));
 
     const incrementPage = () =>
       store.commit("setPage", store.state.currentPage + 1);
@@ -72,7 +72,6 @@ export default defineComponent({
       currentTopic,
       books,
       bookTopics,
-      state: store.state,
       incrementPage,
       decrementPage,
     };

@@ -17,7 +17,8 @@ export type State = typeof state;
 export default createStore({
   state,
   mutations: {
-    setBusy: (state, value) => state.isBusy = value,
+    setBusy: (state) => state.isBusy = true,
+    clearBusy: (state) => state.isBusy = false,
     setError: (state, value) => state.error = value,
     setBooks(state, books) {
       state.books.splice(0, state.books.length, ...books);
@@ -28,7 +29,7 @@ export default createStore({
   actions: {
     async loadBooks({ state, commit }) {
       try {
-        commit("setBusy", true);
+        commit("setBusy");
         const response = await bookService.getBooks(state.currentTopic, state.currentPage);
         if (response.status === 200) {
           commit("setBooks", response.data.works);
@@ -36,7 +37,7 @@ export default createStore({
       } catch {
         commit("setError", "Failed to load books");
       } finally {
-        commit("setBusy", false);
+        commit("clearBusy");
       }
     }
   },
