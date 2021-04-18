@@ -60,10 +60,8 @@ export default defineComponent({
 
     onMounted(async () => await store.loadBooks());
 
-    const incrementPage = () =>
-      store.currentPage++;
-    const decrementPage = () =>
-      store.currentPage--;
+    const incrementPage = () => store.currentPage++;
+    const decrementPage = () => store.currentPage--;
 
     return {
       bookTopics,
